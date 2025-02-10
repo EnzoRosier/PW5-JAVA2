@@ -7,6 +7,7 @@ import java.sql.Connection;
 import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.time.LocalDate;
 import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -21,16 +22,19 @@ public class MovieDaoTestCase {
 
 	@BeforeEach
 	public void initDb() throws Exception {
-		Connection connection = DataSourceFactory.getDataSource().getConnection();
+		DataSourceFactory.setConnectionUrl("jdbc:sqlite:sqlite.db");
+		Connection connection = DataSourceFactory.getConnection();
 		Statement stmt = connection.createStatement();
 		stmt.executeUpdate(
 				"CREATE TABLE IF NOT EXISTS genre (idgenre INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT , name VARCHAR(50) NOT NULL);");
 		stmt.executeUpdate(
 				"CREATE TABLE IF NOT EXISTS movie (\r\n"
-				+ "  idmovie INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,\r\n" + "  title VARCHAR(100) NOT NULL,\r\n"
-				+ "  release_date DATETIME NULL,\r\n" + "  genre_id INT NOT NULL,\r\n" + "  duration INT NULL,\r\n"
-				+ "  director VARCHAR(100) NOT NULL,\r\n" + "  summary MEDIUMTEXT NULL,\r\n"
-				+ "  CONSTRAINT genre_fk FOREIGN KEY (genre_id) REFERENCES genre (idgenre));");
+						+ "  idmovie INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,\r\n"
+						+ "  title VARCHAR(100) NOT NULL,\r\n"
+						+ "  release_date DATETIME NULL,\r\n" + "  genre_id INT NOT NULL,\r\n"
+						+ "  duration INT NULL,\r\n"
+						+ "  director VARCHAR(100) NOT NULL,\r\n" + "  summary MEDIUMTEXT NULL,\r\n"
+						+ "  CONSTRAINT genre_fk FOREIGN KEY (genre_id) REFERENCES genre (idgenre));");
 		stmt.executeUpdate("DELETE FROM movie");
 		stmt.executeUpdate("DELETE FROM genre");
 		stmt.executeUpdate("DELETE FROM sqlite_sequence WHERE name='movie'");
@@ -46,35 +50,43 @@ public class MovieDaoTestCase {
 		stmt.close();
 		connection.close();
 	}
-	
-	 @Test
-	 public void shouldListMovies() {
+
+	@Test
+	public void shouldListMovies() {
 		// WHEN
 		List<Movie> genres = movieDao.listMovies();
 		// THEN
 		assertThat(genres).hasSize(3);
-		assertThat(genres).extracting("title", "director").containsOnly(tuple("Title 1", "director 1"), tuple("My Title 2", "director 2"),
-				tuple("Third title", "director 3"));
-	 }
-	
-	 @Test
-	 public void shouldListMoviesByGenre() {
-		 // WHEN
+		assertThat(genres).extracting("title", "releaseDate", "genre.name", "duration", "director", "summary").containsOnly(
+				tuple("Title 1", LocalDate.of(2015, 11, 26), "Drama", 120, "director 1", "summary of the first movie"),
+				tuple("My Title 2", LocalDate.of(2015, 11, 14), "Comedy", 114, "director 2", "summary of the second movie"),
+				tuple("Third title", LocalDate.of(2015, 12, 12), "Comedy", 176, "director 3", "summary of the third movie"));
+	}
+
+	@Test
+	public void shouldListMoviesByGenre() {
+		// WHEN
 		List<Movie> genres = movieDao.listMoviesByGenre("Comedy");
 		// THEN
 		assertThat(genres).hasSize(2);
-		assertThat(genres).extracting("title", "director").containsOnly(tuple("My Title 2", "director 2"),
-				tuple("Third title", "director 3"));
-	 }
-	
-	 @Test
-	 public void shouldAddMovie() throws Exception {
-		Movie movie = new Movie("4th Title", new Date(2015-12-11).toLocalDate(), new Genre(1, "Drama"), 120, "director 4", "summary of the new movie");
+		assertThat(genres).extracting("title", "releaseDate", "genre.name", "duration", "director", "summary")
+				.containsOnly(
+						tuple("My Title 2", LocalDate.of(2015, 11, 14), "Comedy", 114, "director 2",
+								"summary of the second movie"),
+						tuple("Third title", LocalDate.of(2015, 12, 12), "Comedy", 176, "director 3",
+								"summary of the third movie"));
+	}
+
+	@Test
+	public void shouldAddMovie() throws Exception {
+		Movie movie = new Movie("4th Title", new Date(2015 - 12 - 11).toLocalDate(), new Genre(1, "Drama"), 120,
+				"director 4", "summary of the new movie");
 		Movie result_movie = movieDao.addMovie(movie);
 
-		Connection connection = DataSourceFactory.getDataSource().getConnection();
+		Connection connection = DataSourceFactory.getConnection();
 		Statement statement = connection.createStatement();
-		ResultSet resultSet = statement.executeQuery("SELECT * FROM movie JOIN genre ON movie.genre_id = genre.idgenre WHERE movie.title='4th Title'");
+		ResultSet resultSet = statement.executeQuery(
+				"SELECT * FROM movie JOIN genre ON movie.genre_id = genre.idgenre WHERE movie.title='4th Title'");
 		assertThat(resultSet.next()).isTrue();
 		assertThat(resultSet.getInt("idmovie")).isEqualTo(result_movie.getId());
 		assertThat(resultSet.getString("title")).isEqualTo("4th Title");
@@ -83,5 +95,5 @@ public class MovieDaoTestCase {
 		resultSet.close();
 		statement.close();
 		connection.close();
-	 }
+	}
 }

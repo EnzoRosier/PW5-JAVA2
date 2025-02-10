@@ -12,11 +12,14 @@ import fr.isen.java2.db.entities.Genre;
 public class GenreDao {
 
 	public List<Genre> listGenres() {
-		try (Connection connection = DataSourceFactory.getDataSource().getConnection()) {
+		//Conection to the database
+		try (Connection connection = DataSourceFactory.getConnection()) {
+			//Construct statement
 			try (PreparedStatement statement = connection.prepareStatement(
 					"SELECT * FROM genre")) {
 				try (ResultSet results = statement.executeQuery()) {
 					List<Genre> genres = new ArrayList<Genre>();
+					//We add each row to the list
 					while (results.next()) {
 						Genre genre = new Genre(
 								results.getInt("idgenre"),
@@ -34,12 +37,15 @@ public class GenreDao {
 	}
 
 	public Genre getGenre(String name) {
-		try (Connection connection = DataSourceFactory.getDataSource().getConnection()) {
+		//Conection to the database
+		try (Connection connection = DataSourceFactory.getConnection()) {
+			//Construct statement
 			try (PreparedStatement statement = connection.prepareStatement(
 					"SELECT * FROM genre WHERE name=?")) {
-				statement.setString(1, name);
+				statement.setString(1, name); //Parameter for name
 				try (ResultSet results = statement.executeQuery()) {
 					if (results.next()) {
+						//Return genre
 						return new Genre(
 								results.getInt("idgenre"),
 								results.getString("name"));
@@ -54,11 +60,13 @@ public class GenreDao {
 	}
 
 	public void addGenre(String name) {
-		try (Connection connection = DataSourceFactory.getDataSource().getConnection()) {
+		//Conection to the database
+		try (Connection connection = DataSourceFactory.getConnection()) {
+			//Construct statement
 			try (PreparedStatement statement = connection.prepareStatement(
 					"INSERT INTO genre(name) VALUES(?)")) {
-				statement.setString(1, name);
-				statement.executeUpdate();
+				statement.setString(1, name); //Paramater for name
+				statement.executeUpdate(); //Execute the statement
 			}
 		} catch (SQLException e) {
 			// Manage Exception

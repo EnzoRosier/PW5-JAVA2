@@ -14,7 +14,7 @@ import fr.isen.java2.db.entities.Movie;
 public class MovieDao {
 
 	public List<Movie> listMovies() {
-		try (Connection connection = DataSourceFactory.getDataSource().getConnection()) {
+		try (Connection connection = DataSourceFactory.getConnection()) {
 			try (PreparedStatement statement = connection.prepareStatement(
 					"SELECT * FROM movie JOIN genre ON movie.genre_id = genre.idgenre")) {
 				try (ResultSet results = statement.executeQuery()) {
@@ -43,7 +43,7 @@ public class MovieDao {
 	}
 
 	public List<Movie> listMoviesByGenre(String genreName) {
-		try (Connection connection = DataSourceFactory.getDataSource().getConnection()) {
+		try (Connection connection = DataSourceFactory.getConnection()) {
 			try (PreparedStatement statement = connection.prepareStatement(
 					"SELECT * FROM movie JOIN genre ON movie.genre_id = genre.idgenre WHERE genre.name = ?")) {
 				statement.setString(1, genreName);
@@ -73,7 +73,7 @@ public class MovieDao {
 	}
 
 	public Movie addMovie(Movie movie) {
-		try (Connection connection = DataSourceFactory.getDataSource().getConnection()) {
+		try (Connection connection = DataSourceFactory.getConnection()) {
 			try (PreparedStatement statement = connection.prepareStatement(
 					"INSERT INTO movie(title,release_date,genre_id,duration,director,summary) VALUES(?,?,?,?,?,?)",
 					Statement.RETURN_GENERATED_KEYS)) {
