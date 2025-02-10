@@ -8,6 +8,9 @@ import java.sql.SQLException;
 
 //import org.sqlite.SQLiteDataSource;
 
+
+//ROSIER ENZO
+
 public class DataSourceFactory {
 
 	//private static SQLiteDataSource dataSource;
@@ -32,6 +35,10 @@ public class DataSourceFactory {
 	// 	return dataSource;
 	// }
 
+	/**
+	 * @return a connection to the SQLite Database
+	 * 
+	 */
 	public static Connection getConnection() throws SQLException {
 		if (connectionUrl == null) {
 			throw new SQLException();
@@ -39,6 +46,10 @@ public class DataSourceFactory {
 		return DriverManager.getConnection(connectionUrl);
 	}
 
+	/**
+	 * Set the Url of the database
+	 * 
+	 */
 	public static void setConnectionUrl(String connectionUrl) {
 		DataSourceFactory.connectionUrl = connectionUrl;
 	}

@@ -13,6 +13,9 @@ import org.junit.jupiter.api.Test;
 
 import fr.isen.java2.db.entities.Genre;
 
+
+//ROSIER ENZO
+
 public class GenreDaoTestCase {
 
 	private GenreDao genreDao = new GenreDao();

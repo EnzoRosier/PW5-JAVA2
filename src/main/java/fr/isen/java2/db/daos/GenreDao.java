@@ -9,6 +9,8 @@ import java.util.List;
 
 import fr.isen.java2.db.entities.Genre;
 
+//ROSIER ENZO
+
 public class GenreDao {
 
 	public List<Genre> listGenres() {
